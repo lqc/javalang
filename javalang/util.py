@@ -1,5 +1,4 @@
 
-from __future__ import with_statement
 
 class LookAheadIterator(object):
     def __init__(self, iterable):
@@ -15,11 +14,11 @@ class LookAheadIterator(object):
     def set_default(self, value):
         self.default = value
 
-    def next(self):
+    def __next__(self):
         if self.look_ahead:
             self.value = self.look_ahead.pop(0)
         else:
-            self.value = self.iterable.next()
+            self.value = next(self.iterable)
 
         if self.markers:
             self.markers[-1].append(self.value)
@@ -39,7 +38,7 @@ class LookAheadIterator(object):
 
         if length <= i:
             try:
-                self.look_ahead.extend([self.iterable.next() for _ in range(length, i + 1)])
+                self.look_ahead.extend([next(self.iterable) for _ in range(length, i + 1)])
             except StopIteration:
                 return self.default
 
@@ -100,7 +99,7 @@ class LookAheadListIterator(object):
     def set_default(self, value):
         self.default = value
 
-    def next(self):
+    def __next__(self):
         try:
             self.value = self.list[self.marker]
             self.marker += 1
@@ -158,11 +157,11 @@ class LookAheadListIterator(object):
             self.saved_markers[-1] = saved
 
 if __name__ == "__main__":
-    i = LookAheadIterator(xrange(0, 10000))
+    i = LookAheadIterator(range(0, 10000))
 
-    assert i.next() == 0
-    assert i.next() == 1
-    assert i.next() == 2
+    assert next(i) == 0
+    assert next(i) == 1
+    assert next(i) == 2
 
     assert i.last() == 2
 
@@ -177,44 +176,44 @@ if __name__ == "__main__":
     assert i.last() == 7
 
     i.push_marker()
-    i.next() == 3
-    i.next() == 4
-    i.next() == 5
+    next(i) == 3
+    next(i) == 4
+    next(i) == 5
     i.pop_marker(True) # reset
 
     assert i.look() == 3
-    assert i.next() == 3
+    assert next(i) == 3
 
     i.push_marker() #1
-    assert i.next() == 4
-    assert i.next() == 5
+    assert next(i) == 4
+    assert next(i) == 5
     i.push_marker() #2
-    assert i.next() == 6
-    assert i.next() == 7
+    assert next(i) == 6
+    assert next(i) == 7
     i.push_marker() #3
-    assert i.next() == 8
-    assert i.next() == 9
+    assert next(i) == 8
+    assert next(i) == 9
     i.pop_marker(False) #3
-    assert i.next() == 10
+    assert next(i) == 10
     i.pop_marker(True) #2
-    assert i.next() == 6
-    assert i.next() == 7
-    assert i.next() == 8
+    assert next(i) == 6
+    assert next(i) == 7
+    assert next(i) == 8
     i.pop_marker(False) #1
-    assert i.next() == 9
+    assert next(i) == 9
 
     try:
         with i:
-            assert i.next() == 10
-            assert i.next() == 11
+            assert next(i) == 10
+            assert next(i) == 11
             raise Exception()
     except:
-        assert i.next() == 10
-        assert i.next() == 11
+        assert next(i) == 10
+        assert next(i) == 11
 
     with i:
-        assert i.next() == 12
-        assert i.next() == 13
-    assert i.next() == 14
+        assert next(i) == 12
+        assert next(i) == 13
+    assert next(i) == 14
 
-    print 'All tests passed'
+    print('All tests passed')

@@ -1,5 +1,4 @@
-
-import cPickle as pickle
+import pickle as pickle
 
 class MetaNode(type):
     def __new__(mcs, name, bases, dict):
@@ -14,9 +13,7 @@ class MetaNode(type):
 
         return type.__new__(mcs, name, bases, dict)
 
-class Node(object):
-    __metaclass__ = MetaNode
-
+class Node(object, metaclass=MetaNode):
     attrs = ()
 
     def __init__(self, **kwargs):

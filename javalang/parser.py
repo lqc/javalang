@@ -1,11 +1,8 @@
-
-from __future__ import with_statement
-
 import sys
-import util
 
-import tree
-from tokenizer import (
+import javalang.util as util
+import javalang.tree as tree
+from javalang.tokenizer import (
     EndOfInput, Keyword, Modifier, BasicType, Identifier,
     Annotation, Literal, Operator, JavaToken
     )
@@ -22,31 +19,30 @@ def parse_debug(method):
 
             if self.debug:
                 depth = "%02d" % (self.recursion_depth,)
-                token = unicode(self.tokens.look())
+                token = str(self.tokens.look())
                 start_value = self.tokens.look().value
                 name = method.__name__
                 sep = ("-" * self.recursion_depth)
                 e_message = ""
 
-                print "%s %s> %s(%s)" % (depth, sep, name, token)
+                print("%s %s> %s(%s)" % (depth, sep, name, token))
 
                 self.recursion_depth += 1
 
                 try:
                     r = method(self)
 
-                except JavaSyntaxError, e:
+                except JavaSyntaxError as e:
                     e_message = e.description
                     raise
 
-                except Exception, e:
-                    e_message = unicode(e)
+                except Exception as e:
+                    e_message = str(e)
                     raise
 
                 finally:
-                    token = unicode(self.tokens.last())
-                    print "%s <%s %s(%s, %s) %s" % \
-                        (depth, sep, name, start_value, token, e_message)
+                    token = str(self.tokens.last())
+                    print ("%s <%s %s(%s, %s) %s" % (depth, sep, name, start_value, token, e_message))
                     self.recursion_depth -= 1
             else:
                 self.recursion_depth += 1
@@ -128,9 +124,9 @@ class Parser(object):
             raise JavaParserError("Missing acceptable values")
 
         for accept in accepts:
-            token = self.tokens.next()
+            token = next(self.tokens)
 
-            if isinstance(accept, basestring) and not token.value == accept:
+            if isinstance(accept, str) and not token.value == accept:
                 self.illegal("Expected '%s'" % (accept,))
             elif isinstance(accept, type) and not isinstance(token, accept):
                 self.illegal("Expected %s" % (accept.__name__,))
@@ -146,7 +142,7 @@ class Parser(object):
         for i, accept in enumerate(accepts):
             token = self.tokens.look(i)
 
-            if isinstance(accept, basestring) and not token.value == accept:
+            if isinstance(accept, str) and not token.value == accept:
                 return False
             elif isinstance(accept, type) and not isinstance(token, accept):
                 return False
@@ -160,13 +156,13 @@ class Parser(object):
         for i, accept in enumerate(accepts):
             token = self.tokens.look(i)
 
-            if isinstance(accept, basestring) and not token.value == accept:
+            if isinstance(accept, str) and not token.value == accept:
                 return False
             elif isinstance(accept, type) and not isinstance(token, accept):
                 return False
 
         for i in range(0, len(accepts)):
-            self.tokens.next()
+            next(self.tokens)
 
         return True
 
@@ -180,7 +176,7 @@ class Parser(object):
         i = 0
 
         for level in range(start_level, len(self.operator_precedence)):
-            for j in xrange(1, len(parts) - 1, 2):
+            for j in range(1, len(parts) - 1, 2):
                 if parts[j] in self.operator_precedence[level]:
                     operand = self.build_binary_operation(parts[i:j], level + 1)
                     operator = parts[j]
@@ -2073,7 +2069,7 @@ class Parser(object):
             return tree.This()
 
         elif self.would_accept('.', '<'):
-            self.tokens.next()
+            next(self.tokens)
             return self.parse_explicit_generic_invocation()
 
         elif self.try_accept('.', 'new'):

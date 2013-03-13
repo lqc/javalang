@@ -1,4 +1,3 @@
-
 import re
 import unicodedata
 
@@ -392,7 +391,7 @@ class JavaTokenizer(object):
         codecs = ['utf_8', 'iso-8859-1']
 
         # If data is already unicode don't try to redecode
-        if isinstance(self.data, unicode):
+        if isinstance(self.data, str):
             return self.data
 
         for codec in codecs:
@@ -476,7 +475,7 @@ class JavaTokenizer(object):
                     except ValueError:
                         self.error('Invalid unicode escape', data[j:j+4])
 
-                    new_data.append(unichr(escape_code))
+                    new_data.append(chr(escape_code))
 
                     i = j + 4
                     j = i
@@ -574,7 +573,7 @@ class JavaTokenizer(object):
         if not char:
             char = self.data[self.j]
 
-        message = u'%s at "%s", line %s: %s' % (message, char, line_number, line)
+        message = '%s at "%s", line %s: %s' % (message, char, line_number, line)
 
         raise LexerError(message)
 

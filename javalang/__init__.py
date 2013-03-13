@@ -1,5 +1,1 @@
-
-import parser
-import parse
-import tokenizer
-import javadoc
+from . import parser, parse, tokenizer, javadoc
